@@ -1,0 +1,40 @@
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>PetSounds</title>
+</head>
+<body>
+	<form action="/search" method="post">
+		<input name="artist" type="search">
+		<button type="submit">Search</button>
+	</form>
+	<div id="results"></div>
+	<div id="releases"></div>
+
+	<script type="text/javascript" src="/assets/js/jquery-2.0.3.min.js"></script>
+	<script type="text/javascript">
+	$(function() {
+		$('form[action$="search"]').submit(function(event) {
+			event.preventDefault();
+
+			var searching = $.post('/search', { artist: $(this).find('input').val() });
+
+			searching.done(function(html) {
+				$('#results').html(html);
+			});
+
+			return false;
+		});
+
+		$('body').on('click', 'a', function(event) {
+			event.preventDefault();
+			var releasesQuery = $.get(this.href);
+
+			releasesQuery.done(function(html) {
+				$('#releases').html(html);
+			});
+		});
+	});
+	</script>
+</body>
+</html>
