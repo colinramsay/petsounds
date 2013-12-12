@@ -26,12 +26,21 @@
 			return false;
 		});
 
-		$('body').on('click', 'a', function(event) {
+		$('body').on('click', '#results a', function(event) {
 			event.preventDefault();
 			var releasesQuery = $.get(this.href);
 
 			releasesQuery.done(function(html) {
 				$('#releases').html(html);
+			});
+		});
+
+		$('body').on('click', '#releases a', function(event) {
+			event.preventDefault();
+			var releasesQuery = $.get(this.href);
+
+			releasesQuery.done(function(response) {
+				alert(response);
 			});
 		});
 	});

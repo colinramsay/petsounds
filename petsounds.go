@@ -4,9 +4,9 @@ import (
     "log"
 	"net/http"
 	"html/template"
-    //"database/sql"
-    //
+    scrapers "github.com/colinramsay/petsounds_scrapers"
     "github.com/colinramsay/go-musicbrainz"
+    "fmt"
 )
 
 func renderTemplate(w http.ResponseWriter, tmpl string, result interface{}) {
@@ -34,6 +34,14 @@ func artistSearchHandler(w http.ResponseWriter, r *http.Request) {
     renderTemplate(w, "artist", result)
 }
 
+func fetchHandler(w http.ResponseWriter, r *http.Request) {
+    pb := scrapers.NewPirateBay("http://tpb.unblocked.co")
+    term := r.FormValue("term")
+    filename := pb.SearchAndSave(term, "./")
+
+    fmt.Fprintf(w, "File fetched to %s", filename)
+}
+
 func main() {
 	// db, err := sql.Open("sqlite3", "./petsounds.db")
  //    if err != nil {
@@ -46,6 +54,7 @@ func main() {
     mux.Handle("/", http.HandlerFunc(rootHandler))
     mux.Handle("/search", http.HandlerFunc(artistSearchHandler))
     mux.Handle("/releases", http.HandlerFunc(releasesHandler))
+    mux.Handle("/release/fetch", http.HandlerFunc(fetchHandler))
 
     mux.HandleFunc("/assets/", func(w http.ResponseWriter, r *http.Request) {
         log.Printf("serving %s", "./public"+r.URL.Path)
