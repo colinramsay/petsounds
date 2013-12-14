@@ -10,40 +10,6 @@
 	</form>
 	<div id="results"></div>
 	<div id="releases"></div>
-
-	<script type="text/javascript" src="/assets/js/jquery-2.0.3.min.js"></script>
-	<script type="text/javascript">
-	$(function() {
-		$('form[action$="search"]').submit(function(event) {
-			event.preventDefault();
-
-			var searching = $.post('/search', { artist: $(this).find('input').val() });
-
-			searching.done(function(html) {
-				$('#results').html(html);
-			});
-
-			return false;
-		});
-
-		$('body').on('click', '#results a', function(event) {
-			event.preventDefault();
-			var releasesQuery = $.get(this.href);
-
-			releasesQuery.done(function(html) {
-				$('#releases').html(html);
-			});
-		});
-
-		$('body').on('click', '#releases a', function(event) {
-			event.preventDefault();
-			var releasesQuery = $.get(this.href);
-
-			releasesQuery.done(function(response) {
-				alert(response);
-			});
-		});
-	});
-	</script>
+	<script data-main="/assets/js/app.js" src="/assets/lib/require.js"></script>
 </body>
 </html>
