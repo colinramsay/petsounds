@@ -1,5 +1,35 @@
+body {
+  margin: 20px; }
+  body * {
+    font-family: "Open Sans", "Open Sans", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif !important; }
+
+a {
+  color: black; }
+  a :visited {
+    color: black; }
+
+form button {
+  padding: 8px;
+  margin-left: 4px; }
+form input[type=search] {
+  border: 1px solid #aaa;
+  padding: 8px;
+  width: 300px;
+  font-size: 14px;
+  font-weight: bold; }
+
 #loading {
   display: none;
   position: fixed;
   top: 0;
   right: 0; }
+
+#results {
+  overflow: scroll-y;
+  width: 30%;
+  float: left;
+  border-right: 2px solid #444; }
+
+#releases {
+  overflow: scroll-y;
+  float: left; }

@@ -1,5 +1,9 @@
 <ul>
 {{range .Releases}}
-	<li><a href="/release/fetch?term={{.Title}}">{{.Id}} - {{.Title}}</a></li>
+	<li>
+		<a href="/release/fetch?term={{.Title}}">
+		{{.Title}} ({{.ReleaseDate}})
+		</a>
+	</li>
 {{end}}
 </ul>

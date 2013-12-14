@@ -1,5 +1,12 @@
 <ul>
 {{range .Artists}}
-	<li><a href="/releases?id={{.Id}}">{{.Name}} - {{.Disambiguation}}</a></li>
+	<li>
+		<a href="/releases?id={{.Id}}">
+			{{.Name}}
+			{{if .Disambiguation}}
+			- {{.Disambiguation}}
+			{{end}}
+		</a>
+	</li>
 {{end}}
 </ul>
