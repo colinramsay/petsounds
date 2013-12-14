@@ -11,4 +11,10 @@ require(['jquery', 'js/searching', 'js/artists', 'js/releases'], function($, sea
         artists.init();
         releases.init();
     });
+
+    $(document).bind("ajaxSend", function(){
+		$("#loading").show();
+	}).bind("ajaxComplete", function(){
+		$("#loading").hide();
+	});
 });
