@@ -9,6 +9,13 @@ import (
     "fmt"
 )
 
+func saveSettingsHandler(w http.ResponseWriter, r *http.Request) { 
+}
+
+func showSettingsHandler(w http.ResponseWriter, r *http.Request) { 
+    renderTemplate(w, "settings", nil)
+}
+
 func renderTemplate(w http.ResponseWriter, tmpl string, result interface{}) {
     t, _ := template.ParseFiles("./tpl/" + tmpl + ".html")
     t.Execute(w, result)
@@ -55,6 +62,14 @@ func main() {
     mux.Handle("/search", http.HandlerFunc(artistSearchHandler))
     mux.Handle("/releases", http.HandlerFunc(releasesHandler))
     mux.Handle("/release/fetch", http.HandlerFunc(fetchHandler))
+
+    mux.HandleFunc("/settings", func(w http.ResponseWriter, r *http.Request)  {
+        if r.Method == "POST" {
+            saveSettingsHandler(w, r)
+        } else if r.Method == "GET" {
+            showSettingsHandler(w, r)
+        }
+    })
 
     mux.HandleFunc("/assets/", func(w http.ResponseWriter, r *http.Request) {
         log.Printf("serving %s", "./public"+r.URL.Path)

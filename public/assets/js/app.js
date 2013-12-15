@@ -5,8 +5,9 @@ require.config({
     }
 });
 
-require(['jquery', 'js/searching', 'js/artists', 'js/releases'], function($, searching, artists, releases) {
+require(['jquery', 'js/searching', 'js/artists', 'js/releases', 'js/settings'], function($, searching, artists, releases, settings) {
     $(function() {
+        settings.init();
     	searching.init();
         artists.init();
         releases.init();
