@@ -27,7 +27,7 @@ func saveSettingsHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Fprintf(w, "Saved settings!")
 }
 
-func showSettingsHandler(w http.ResponseWriter, r *http.Request) {
+func readSettings() Settings {
     bytes, err := ioutil.ReadFile(CONFIG_FILE)
 
     if err != nil {
@@ -39,6 +39,12 @@ func showSettingsHandler(w http.ResponseWriter, r *http.Request) {
     err = json.Unmarshal(bytes, &settings)
 
     log.Printf("Loaded configuration file %v", settings)
+
+    return settings
+}
+
+func showSettingsHandler(w http.ResponseWriter, r *http.Request) {
+    settings := readSettings()
 
     renderTemplate(w, "settings", settings)
 }
@@ -74,9 +80,11 @@ func artistSearchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func fetchHandler(w http.ResponseWriter, r *http.Request) {
+    settings := readSettings()
+
     pb := scrapers.NewPirateBay("http://tpb.unblocked.co")
     term := r.FormValue("term")
-    filename := pb.SearchAndSave(term, "./")
+    filename := pb.SearchAndSave(term, settings.TorrentConfiguration.BlackHoleDirectory)
 
     fmt.Fprintf(w, "File fetched to %s", filename)
 }
@@ -109,5 +117,10 @@ func main() {
 
     })
 
-    http.ListenAndServe(":8999", mux)
+    go http.ListenAndServe(":8999", mux)
+    settings := readSettings()
+    pp := PostProcessor{}
+    pp.StartWatching(settings.TorrentConfiguration.BlackHoleDirectory)
+
+    
 }
