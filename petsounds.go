@@ -48,7 +48,12 @@ func renderTemplate(w http.ResponseWriter, tmpl string, result interface{}) {
     t.Execute(w, result)
 }
 
-func rootHandler(w http.ResponseWriter, r *http.Request) { 
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+    if r.URL.Path != "/" {
+        w.WriteHeader(http.StatusNotFound)
+            fmt.Fprint(w, "custom 404")
+        return
+    }
     renderTemplate(w, "index", nil)
 }
 
