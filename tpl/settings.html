@@ -4,15 +4,15 @@
 
 		<label>
 			Torrent Black Hole
-			<input name="torrentBlackHole" />
+			<input name="torrentBlackHole" value="{{.TorrentConfiguration.BlackHoleDirectory}}" />
 		</label>
 
 		<label>
 			Pirate Bay Proxy URL
-			<input name="pirateBayProxyUrl" />
+			<input name="pirateBayProxyUrl" value="{{.TorrentConfiguration.PirateBayProxy}}" />
 		</label>
 
 		<button type="submit">Save</button>
-		<button>Cancel</button>
+		<button type="button">Cancel</button>
 	</form>
 </div>

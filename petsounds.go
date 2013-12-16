@@ -7,13 +7,40 @@ import (
     scrapers "github.com/colinramsay/petsounds_scrapers"
     "github.com/colinramsay/go-musicbrainz"
     "fmt"
+    "io/ioutil"
+    "encoding/json"
 )
 
-func saveSettingsHandler(w http.ResponseWriter, r *http.Request) { 
+const CONFIG_FILE string = "./petsounds.conf.json"
+
+func saveSettingsHandler(w http.ResponseWriter, r *http.Request) {
+    settings := Settings{TorrentConfiguration{BlackHoleDirectory:r.FormValue("torrentBlackHole"),PirateBayProxy:r.FormValue("pirateBayProxyUrl")}}
+
+    bytes, err := json.MarshalIndent(settings, "", "    ")
+
+    err = ioutil.WriteFile(CONFIG_FILE, bytes, 0644)
+
+    if err != nil {
+
+    }
+
+    fmt.Fprintf(w, "Saved settings!")
 }
 
-func showSettingsHandler(w http.ResponseWriter, r *http.Request) { 
-    renderTemplate(w, "settings", nil)
+func showSettingsHandler(w http.ResponseWriter, r *http.Request) {
+    bytes, err := ioutil.ReadFile(CONFIG_FILE)
+
+    if err != nil {
+        panic("Could not find configuration file.")
+    }
+
+    var settings Settings
+
+    err = json.Unmarshal(bytes, &settings)
+
+    log.Printf("Loaded configuration file %v", settings)
+
+    renderTemplate(w, "settings", settings)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, result interface{}) {
