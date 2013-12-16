@@ -3,5 +3,5 @@ PetSounds is a testbed for a replacement for Headphones (https://github.com/remb
 At the moment it is *NOTHING* like Headphones. Still todo at the very least:
 
 - Lots of UI work
+- Post-processing
 - Local storage of artists & releases
-- Preferences screens
