@@ -1,6 +1,6 @@
 {
-    "torrentConfiguration": {
-        "pirateBayProxy": "http://tpb.unblocked.co",
-        "blackHoleDirectory": "./hole/"
+    "TorrentConfiguration": {
+        "PirateBayProxy": "http://tpb.unblocked.co",
+        "BlackHoleDirectory": "./hole/"
     }
 }
