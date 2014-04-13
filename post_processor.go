@@ -1,39 +1,46 @@
 package main
 
 import (
-    "log"
-    "github.com/howeyc/fsnotify"
+	"github.com/howeyc/fsnotify"
+	"log"
+	"os/exec"
 )
 
 type PostProcessor struct {
 }
 
-func (pp *PostProcessor) StartWatching(directory string) {
+func (pp *PostProcessor) StartWatching(directory string, shellScript string) {
 	watcher, err := fsnotify.NewWatcher()
-    if err != nil {
-        log.Fatal(err)
-    }
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    done := make(chan bool)
+	done := make(chan bool)
 
-    // Process events
-    go func() {
-        for {
-            select {
-            case ev := <-watcher.Event:
-                log.Println("event:", ev)
-            case err := <-watcher.Error:
-                log.Println("error:", err)
-            }
-        }
-    }()
+	// Process events
+	go func() {
+		for {
+			select {
+			case ev := <-watcher.Event:
+				log.Println("Watch event: ", ev)
 
-    err = watcher.Watch(directory)
-    if err != nil {
-        log.Fatal(err)
-    }
+				err := exec.Command(shellScript, ev.Name).Run()
+				if err != nil {
+					log.Fatal(err)
+				}
+			case err := <-watcher.Error:
+				log.Println("error:", err)
+			}
+		}
+	}()
 
-    <-done
+	err = watcher.WatchFlags(directory, FSN_CREATE)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    watcher.Close()
+	<-done
+
+	watcher.Close()
 }
+

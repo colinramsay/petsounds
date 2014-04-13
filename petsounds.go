@@ -1,126 +1,131 @@
 package main
 
 import (
-    "log"
-	"net/http"
+	"encoding/json"
+	"fmt"
+	"github.com/colinramsay/go-musicbrainz"
+	scrapers "github.com/colinramsay/petsounds_scrapers"
 	"html/template"
-    scrapers "github.com/colinramsay/petsounds_scrapers"
-    "github.com/colinramsay/go-musicbrainz"
-    "fmt"
-    "io/ioutil"
-    "encoding/json"
+	"io/ioutil"
+	"log"
+	"net/http"
 )
 
 const CONFIG_FILE string = "./petsounds.conf.json"
 
 func saveSettingsHandler(w http.ResponseWriter, r *http.Request) {
-    settings := Settings{TorrentConfiguration{BlackHoleDirectory:r.FormValue("torrentBlackHole"),PirateBayProxy:r.FormValue("pirateBayProxyUrl")}}
+	settings := Settings {
+		TorrentConfiguration {
+			r.FormValue("torrentBlackHole"),
+			r.FormValue("pirateBayProxyUrl"),
+			"",
+		},
+		"",
+	}
 
-    bytes, err := json.MarshalIndent(settings, "", "    ")
+	bytes, err := json.MarshalIndent(settings, "", "    ")
 
-    err = ioutil.WriteFile(CONFIG_FILE, bytes, 0644)
+	err = ioutil.WriteFile(CONFIG_FILE, bytes, 0644)
 
-    if err != nil {
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    }
-
-    fmt.Fprintf(w, "Saved settings!")
+	fmt.Fprintf(w, "Saved settings!")
 }
 
 func readSettings() Settings {
-    bytes, err := ioutil.ReadFile(CONFIG_FILE)
+	bytes, err := ioutil.ReadFile(CONFIG_FILE)
 
-    if err != nil {
-        panic("Could not find configuration file.")
-    }
+	if err != nil {
+		panic("Could not find configuration file.")
+	}
 
-    var settings Settings
+	var settings Settings
 
-    err = json.Unmarshal(bytes, &settings)
+	err = json.Unmarshal(bytes, &settings)
 
-    log.Printf("Loaded configuration file %v", settings)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    return settings
+	log.Printf("Loaded configuration file %v", settings)
+
+	return settings
 }
 
 func showSettingsHandler(w http.ResponseWriter, r *http.Request) {
-    settings := readSettings()
+	settings := readSettings()
 
-    renderTemplate(w, "settings", settings)
+	renderTemplate(w, "settings", settings)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, result interface{}) {
-    t, _ := template.ParseFiles("./tpl/" + tmpl + ".html")
-    t.Execute(w, result)
+	t, _ := template.ParseFiles("./tpl/" + tmpl + ".html")
+	t.Execute(w, result)
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-    if r.URL.Path != "/" {
-        w.WriteHeader(http.StatusNotFound)
-            fmt.Fprint(w, "custom 404")
-        return
-    }
-    renderTemplate(w, "index", nil)
+	if r.URL.Path != "/" {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "custom 404")
+		return
+	}
+	renderTemplate(w, "index", nil)
 }
 
 func releasesHandler(w http.ResponseWriter, r *http.Request) {
-    result := musicbrainz.ReleaseResult{}
-    result = musicbrainz.GetReleases(r.FormValue("id"))
-    renderTemplate(w, "releases", result)
+	result := musicbrainz.ReleaseResult{}
+	result = musicbrainz.GetReleases(r.FormValue("id"))
+	renderTemplate(w, "releases", result)
 }
 
 func artistSearchHandler(w http.ResponseWriter, r *http.Request) {
-    result := musicbrainz.ArtistResult{}
+	result := musicbrainz.ArtistResult{}
 
-    if r.Method == "POST" {
-        result = musicbrainz.SearchArtist(r.FormValue("artist"))
-    } 
+	if r.Method == "POST" {
+		result = musicbrainz.SearchArtist(r.FormValue("artist"))
+	}
 
-    renderTemplate(w, "artist", result)
+	renderTemplate(w, "artist", result)
 }
 
 func fetchHandler(w http.ResponseWriter, r *http.Request) {
-    settings := readSettings()
+	settings := readSettings()
 
-    pb := scrapers.NewPirateBay("http://tpb.unblocked.co")
-    term := r.FormValue("term")
-    filename := pb.SearchAndSave(term, settings.TorrentConfiguration.BlackHoleDirectory)
+	pb := scrapers.NewPirateBay(settings.TorrentConfiguration.PirateBayProxy)
+	term := r.FormValue("term")
+	filename := pb.SearchAndSave(term, settings.TorrentConfiguration.BlackHoleDirectory)
 
-    fmt.Fprintf(w, "File fetched to %s", filename)
+	fmt.Fprintf(w, "File fetched to %s", filename)
 }
 
 func main() {
-	// db, err := sql.Open("sqlite3", "./petsounds.db")
- //    if err != nil {
- //        log.Fatal(err)
- //    }
- //    defer db.Close()
+	checkDatabase()
 
+	mux := http.NewServeMux()
+	mux.Handle("/", http.HandlerFunc(rootHandler))
+	mux.Handle("/search", http.HandlerFunc(artistSearchHandler))
+	mux.Handle("/releases", http.HandlerFunc(releasesHandler))
+	mux.Handle("/release/fetch", http.HandlerFunc(fetchHandler))
 
-    mux := http.NewServeMux()
-    mux.Handle("/", http.HandlerFunc(rootHandler))
-    mux.Handle("/search", http.HandlerFunc(artistSearchHandler))
-    mux.Handle("/releases", http.HandlerFunc(releasesHandler))
-    mux.Handle("/release/fetch", http.HandlerFunc(fetchHandler))
+	mux.HandleFunc("/settings", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" {
+			saveSettingsHandler(w, r)
+		} else if r.Method == "GET" {
+			showSettingsHandler(w, r)
+		}
+	})
 
-    mux.HandleFunc("/settings", func(w http.ResponseWriter, r *http.Request)  {
-        if r.Method == "POST" {
-            saveSettingsHandler(w, r)
-        } else if r.Method == "GET" {
-            showSettingsHandler(w, r)
-        }
-    })
+	mux.HandleFunc("/assets/", func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("serving %s", "./public"+r.URL.Path)
+		http.ServeFile(w, r, "./public"+r.URL.Path)
 
-    mux.HandleFunc("/assets/", func(w http.ResponseWriter, r *http.Request) {
-        log.Printf("serving %s", "./public"+r.URL.Path)
-        http.ServeFile(w, r, "./public"+r.URL.Path)
+	})
 
-    })
+	go http.ListenAndServe(":8999", mux)
+	settings := readSettings()
+	pp := PostProcessor{}
+	pp.StartWatching(settings.TorrentConfiguration.CompleteDirectory, settings.PostProcessingScript)
 
-    go http.ListenAndServe(":8999", mux)
-    settings := readSettings()
-    pp := PostProcessor{}
-    pp.StartWatching(settings.TorrentConfiguration.BlackHoleDirectory)
-
-    
 }

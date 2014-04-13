@@ -1,6 +1,8 @@
 {
     "TorrentConfiguration": {
-        "PirateBayProxy": "http://tpb.unblocked.co",
-        "BlackHoleDirectory": "./hole/"
-    }
+        "PirateBayProxy": "http://bayporn.net",
+        "BlackHoleDirectory": "/Users/colinramsay/go/src/github.com/colinramsay/petsounds/hole/",
+        "CompleteDirectory": "/Users/colinramsay/go/src/github.com/colinramsay/petsounds/complete/"
+    },
+    "PostProcessingScript": "/Users/colinramsay/go/src/github.com/colinramsay/petsounds/notify.sh"
 }
