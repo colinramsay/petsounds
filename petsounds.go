@@ -101,7 +101,7 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	checkDatabase()
+	//checkDatabase()
 
 	mux := http.NewServeMux()
 	mux.Handle("/", http.HandlerFunc(rootHandler))

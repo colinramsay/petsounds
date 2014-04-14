@@ -34,7 +34,7 @@ func (pp *PostProcessor) StartWatching(directory string, shellScript string) {
 		}
 	}()
 
-	err = watcher.WatchFlags(directory, FSN_CREATE)
+	err = watcher.WatchFlags(directory, fsnotify.FSN_CREATE)
 	if err != nil {
 		log.Fatal(err)
 	}
