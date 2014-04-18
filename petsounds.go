@@ -9,9 +9,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"flag"
 )
-
-const CONFIG_FILE string = "./petsounds.conf.json"
 
 func saveSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	settings := Settings {
@@ -100,8 +99,14 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "File fetched to %s", filename)
 }
 
+var CONFIG_FILE string
+
 func main() {
-	//checkDatabase()
+
+	flag.StringVar(&CONFIG_FILE, "config", "./petsounds.conf.json", "Path to the config file")
+	flag.Parse()
+
+	log.Printf("Using config from %v", CONFIG_FILE)
 
 	mux := http.NewServeMux()
 	mux.Handle("/", http.HandlerFunc(rootHandler))
