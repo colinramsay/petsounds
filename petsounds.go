@@ -10,7 +10,13 @@ import (
 	"log"
 	"net/http"
 	"flag"
+	"os"
+	"path/filepath"
+	"path"
 )
+
+
+var CONFIG_FILE string
 
 func saveSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	settings := Settings {
@@ -60,7 +66,10 @@ func showSettingsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, result interface{}) {
-	t, _ := template.ParseFiles("./tpl/" + tmpl + ".html")
+	tplFile := path.Join(getRootDir(), "tpl/" + tmpl + ".html")
+	log.Printf("Root dir is %v", getRootDir())
+	log.Printf("Rendering template %v", tplFile)
+	t, _ := template.ParseFiles(tplFile)
 	t.Execute(w, result)
 }
 
@@ -99,11 +108,15 @@ func fetchHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "File fetched to %s", filename)
 }
 
-var CONFIG_FILE string
+func getRootDir() string {
+	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+
+	return dir
+}
 
 func main() {
 
-	flag.StringVar(&CONFIG_FILE, "config", "./petsounds.conf.json", "Path to the config file")
+	flag.StringVar(&CONFIG_FILE, "config", path.Join(getRootDir(), "petsounds.conf.json"), "Path to the config file")
 	flag.Parse()
 
 	log.Printf("Using config from %v", CONFIG_FILE)
@@ -123,8 +136,9 @@ func main() {
 	})
 
 	mux.HandleFunc("/assets/", func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("serving %s", "./public"+r.URL.Path)
-		http.ServeFile(w, r, "./public"+r.URL.Path)
+		toServe := path.Join(getRootDir(), "/public"+r.URL.Path)
+		log.Printf("serving %s", toServe)
+		http.ServeFile(w, r, toServe)
 
 	})
 
