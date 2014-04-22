@@ -28,11 +28,7 @@ func saveSettingsHandler(w http.ResponseWriter, r *http.Request) {
 		"",
 	}
 
-	bytes, err := json.MarshalIndent(settings, "", "    ")
-
-	err = ioutil.WriteFile(CONFIG_FILE, bytes, 0644)
-
-	if err != nil {
+	if err := settings.Write(CONFIG_FILE); err != nil {
 		log.Fatal(err)
 	}
 

@@ -4,6 +4,8 @@ import (
 	// "database/sql"
 	// _ "github.com/mattn/go-sqlite3"
 	//"log"
+	"encoding/json"
+	"io/ioutil"
 )
 
 type TorrentConfiguration struct {
@@ -15,6 +17,16 @@ type TorrentConfiguration struct {
 type Settings struct {
 	TorrentConfiguration TorrentConfiguration
 	PostProcessingScript string
+}
+
+func (settings Settings) Write(writeTo string) error {
+	bytes, err := json.MarshalIndent(settings, "", "    ")
+
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(writeTo, bytes, 0644)
 }
 
 // const databaseFilename = "petsounds.sqlite"

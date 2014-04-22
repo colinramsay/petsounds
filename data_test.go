@@ -1,5 +1,34 @@
 package main
 
+import (
+	"testing"
+	"os"
+)
+
+func TestWriteSettings(t *testing.T) {
+	tmpCfg := "./tmpcfg.json"
+
+	os.Remove(tmpCfg)
+
+	Settings {
+		TorrentConfiguration {
+			"blackholecfg",
+			"proxyurlcfg",
+			"completedircfg",
+		},
+		"ppcfg",
+	}.Write(tmpCfg)
+
+	f, err := os.Open(tmpCfg)
+	fi, err := f.Stat()
+	
+	if err != nil || fi.Size() == 0 {
+		t.Fatal("config file was empty")
+	}
+
+	os.Remove(tmpCfg)
+}
+
 // import (
 // 	"database/sql"
 // 	_ "github.com/mattn/go-sqlite3"
