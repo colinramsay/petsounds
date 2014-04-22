@@ -1,7 +1,8 @@
 <ul>
-{{range .Releases}}
+{{$artistName := .Artist.Name}}
+{{range .Artist.Releases}}
 	<li>
-		<a href="/release/fetch?term={{.Title}}">
+		<a href="/release/fetch?term={{$artistName}}+{{.Title}}">
 		{{.Title}} ({{.ReleaseDate}})
 		</a>
 	</li>

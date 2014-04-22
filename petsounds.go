@@ -70,7 +70,13 @@ func renderTemplate(w http.ResponseWriter, tmpl string, result interface{}) {
 	log.Printf("Root dir is %v", getRootDir())
 	log.Printf("Rendering template %v", tplFile)
 	t, _ := template.ParseFiles(tplFile)
-	t.Execute(w, result)
+	
+
+	err := t.Execute(w, result)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
@@ -94,6 +100,8 @@ func artistSearchHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		result = musicbrainz.SearchArtist(r.FormValue("artist"))
 	}
+
+	log.Printf("Found %v", result)
 
 	renderTemplate(w, "artist", result)
 }
