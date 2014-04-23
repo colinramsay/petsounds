@@ -1,8 +1,8 @@
 package main
 
 import (
-	"testing"
 	"os"
+	"testing"
 )
 
 func TestWriteSettings(t *testing.T) {
@@ -10,8 +10,8 @@ func TestWriteSettings(t *testing.T) {
 
 	os.Remove(tmpCfg)
 
-	Settings {
-		TorrentConfiguration {
+	Settings{
+		TorrentConfiguration{
 			"blackholecfg",
 			"proxyurlcfg",
 			"completedircfg",
@@ -21,12 +21,20 @@ func TestWriteSettings(t *testing.T) {
 
 	f, err := os.Open(tmpCfg)
 	fi, err := f.Stat()
-	
+
 	if err != nil || fi.Size() == 0 {
 		t.Fatal("config file was empty")
 	}
 
 	os.Remove(tmpCfg)
+}
+
+func TestReadSettings(t *testing.T) {
+	settings := ReadSettings("./testdata/sample.config.json")
+
+	if settings.PostProcessingScript != "pp" {
+		t.Fatal("PostProcessingScript was not pp")
+	}
 }
 
 // import (

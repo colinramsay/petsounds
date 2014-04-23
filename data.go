@@ -6,12 +6,13 @@ import (
 	//"log"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 )
 
 type TorrentConfiguration struct {
-	PirateBayProxy       string
-	BlackHoleDirectory   string
-	CompleteDirectory    string
+	PirateBayProxy     string
+	BlackHoleDirectory string
+	CompleteDirectory  string
 }
 
 type Settings struct {
@@ -27,6 +28,26 @@ func (settings Settings) Write(writeTo string) error {
 	}
 
 	return ioutil.WriteFile(writeTo, bytes, 0644)
+}
+
+func ReadSettings(cfgFile string) Settings {
+	bytes, err := ioutil.ReadFile(cfgFile)
+
+	if err != nil {
+		panic("Could not find configuration file.")
+	}
+
+	var settings Settings
+
+	err = json.Unmarshal(bytes, &settings)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("Loaded configuration file %v", settings)
+
+	return settings
 }
 
 // const databaseFilename = "petsounds.sqlite"

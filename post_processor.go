@@ -43,4 +43,3 @@ func (pp *PostProcessor) StartWatching(directory string, shellScript string) {
 
 	watcher.Close()
 }
-

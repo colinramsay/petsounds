@@ -1,26 +1,23 @@
 package main
 
 import (
-	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/colinramsay/go-musicbrainz"
 	scrapers "github.com/colinramsay/petsounds_scrapers"
 	"html/template"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"flag"
 	"os"
-	"path/filepath"
 	"path"
+	"path/filepath"
 )
-
 
 var CONFIG_FILE string
 
 func saveSettingsHandler(w http.ResponseWriter, r *http.Request) {
-	settings := Settings {
-		TorrentConfiguration {
+	settings := Settings{
+		TorrentConfiguration{
 			r.FormValue("torrentBlackHole"),
 			r.FormValue("pirateBayProxyUrl"),
 			"",
@@ -35,38 +32,17 @@ func saveSettingsHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Saved settings!")
 }
 
-func readSettings() Settings {
-	bytes, err := ioutil.ReadFile(CONFIG_FILE)
-
-	if err != nil {
-		panic("Could not find configuration file.")
-	}
-
-	var settings Settings
-
-	err = json.Unmarshal(bytes, &settings)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Printf("Loaded configuration file %v", settings)
-
-	return settings
-}
-
 func showSettingsHandler(w http.ResponseWriter, r *http.Request) {
-	settings := readSettings()
+	settings := ReadSettings(CONFIG_FILE)
 
 	renderTemplate(w, "settings", settings)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, result interface{}) {
-	tplFile := path.Join(getRootDir(), "tpl/" + tmpl + ".html")
+	tplFile := path.Join(getRootDir(), "tpl/"+tmpl+".html")
 	log.Printf("Root dir is %v", getRootDir())
 	log.Printf("Rendering template %v", tplFile)
 	t, _ := template.ParseFiles(tplFile)
-	
 
 	err := t.Execute(w, result)
 
@@ -103,7 +79,7 @@ func artistSearchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func fetchHandler(w http.ResponseWriter, r *http.Request) {
-	settings := readSettings()
+	settings := ReadSettings(CONFIG_FILE)
 
 	pb := scrapers.NewPirateBay(settings.TorrentConfiguration.PirateBayProxy)
 	term := r.FormValue("term")
@@ -147,7 +123,7 @@ func main() {
 	})
 
 	go http.ListenAndServe(":8999", mux)
-	settings := readSettings()
+	settings := ReadSettings(CONFIG_FILE)
 	pp := PostProcessor{}
 	pp.StartWatching(settings.TorrentConfiguration.CompleteDirectory, settings.PostProcessingScript)
 

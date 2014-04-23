@@ -1,0 +1,8 @@
+{
+    "TorrentConfiguration": {
+        "PirateBayProxy": "proxy",
+        "BlackHoleDirectory": "black",
+        "CompleteDirectory": "complete"
+    },
+    "PostProcessingScript": "pp"
+}
